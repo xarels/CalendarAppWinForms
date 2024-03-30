@@ -24,10 +24,10 @@ namespace Calendar
         List<ICalendarEntry> _todaysEntries;
         ICalendarEntry _selectedCalendarEntry;
         int _selectedRow;
-        
-        // Number of pixels in a row in the panel
+
+        // Number of pixels in a row in the panel 
         const int PanelRowHeight = 40;
-        
+
         // X offset from left of panel to the start of
         // a calendar entry block
         const int EntryOffset = 50;
@@ -79,8 +79,8 @@ namespace Calendar
             int nextRow;
             int entryStartRow;
             int entryLength;
-            string dispTime; 
-            
+            string dispTime;
+
             Font font = new Font("Arial", 10);
             Brush drawBrush = new SolidBrush(Color.DarkBlue);
             Brush entryBrush = new SolidBrush(Color.LightBlue);
@@ -93,8 +93,8 @@ namespace Calendar
                 _selectedRow <= panelTopRow + displayedRowCount)
             {
                 // If the selected time is displayed, mark it
-                g.FillRectangle(new SolidBrush(Color.DarkKhaki), 
-                                0, 
+                g.FillRectangle(new SolidBrush(Color.DarkKhaki),
+                                0,
                                 (_selectedRow - panelTopRow) * PanelRowHeight,
                                 paintWidth,
                                 PanelRowHeight);
@@ -115,7 +115,7 @@ namespace Calendar
                 entryStartRow = Utility.ConvertTimeToRow(calendarEntry.Start);
                 entryLength = Utility.ConvertLengthToRows(calendarEntry.Length);
                 // See if the appointment is inside the part of the day displayed on the panel
-                if (((entryStartRow >= panelTopRow) && 
+                if (((entryStartRow >= panelTopRow) &&
                      (entryStartRow <= panelTopRow + displayedRowCount)) ||
                     (entryStartRow + entryLength > panelTopRow))
                 {
@@ -128,7 +128,7 @@ namespace Calendar
                     }
                     int entryDispStart = (entryStartRow - panelTopRow) * PanelRowHeight;
                     int entryDispLength = entryLength * PanelRowHeight;
-                    if (entryDispStart + entryDispLength > paintHeight)  
+                    if (entryDispStart + entryDispLength > paintHeight)
                     {
                         entryDispLength = paintHeight - entryDispStart;
                     }
@@ -202,11 +202,12 @@ namespace Calendar
         private void panelDailyView_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             ICalendarEntry calendarEntry = CheckForCalendarEntry(e);
+
             if (calendarEntry != null)
             {
-                // TODO   Add code to edit the current calendar entry (specified in calendarEntry).
+                EditEntry(calendarEntry);
             }
-        }        
+        }
 
         private ICalendarEntry CheckForCalendarEntry(MouseEventArgs e)
         {
@@ -242,7 +243,7 @@ namespace Calendar
         {
             panelDailyView.Invalidate();
         }
-        
+
         private void monthCalendar_DateChanged(object sender, DateRangeEventArgs e)
         {
             labelDisplayedDate.Text = monthCalendar.SelectionRange.Start.ToLongDateString();
@@ -263,15 +264,20 @@ namespace Calendar
 
         private void NewSingleEntry()
         {
-            // TODO  Add your code that displays the form to add a new single
-            //       calendar entry here.
+            SingleAppointmentForm singleEntry = new SingleAppointmentForm();
+            SingleAppointmentEntry _entry = new SingleAppointmentEntry();
 
-            NewAppointmentForm singleEntry = new NewAppointmentForm();
+            _entry.Start = Utility.ConvertRowToDateTime(monthCalendar.SelectionRange.Start, _selectedRow);
+            singleEntry.NA = _entry;
 
             if (singleEntry.ShowDialog() == DialogResult.OK)
             {
-                singleEntry.Dispose();
+                _calendarEntries.Add(singleEntry.NA);
+                GetEntriesOnSelectedDate(monthCalendar.SelectionRange.Start);
+                SaveCalendarEntries();
+                panelDailyView.Invalidate();
             }
+            singleEntry.Dispose();
         }
 
         private void buttonNewReccuringAppt_Click(object sender, EventArgs e)
@@ -286,15 +292,20 @@ namespace Calendar
 
         private void NewRecurringEntry()
         {
-            // TODO  Add your code that displays the form to add a new recurring
-            //       calendar entry here.
+            RecurringAppointmentForm recurringEntry = new RecurringAppointmentForm();
+            RecurringAppointmentEntry _entry = new RecurringAppointmentEntry();
 
-            NewRecurringAppointmentForm recurringEntry = new NewRecurringAppointmentForm();
+            _entry.Start = Utility.ConvertRowToDateTime(monthCalendar.SelectionRange.Start, _selectedRow);
+            recurringEntry.NRA = _entry;
 
             if (recurringEntry.ShowDialog() == DialogResult.OK)
             {
-                recurringEntry.Dispose();
-            }          
+                _calendarEntries.Add(recurringEntry.NRA);
+                GetEntriesOnSelectedDate(monthCalendar.SelectionRange.Start);
+                SaveCalendarEntries();
+                panelDailyView.Invalidate();
+            }
+            recurringEntry.Dispose();
         }
 
         private void SaveCalendarEntries()
@@ -315,15 +326,15 @@ namespace Calendar
 
         private void editToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // TODO     Add code to edit the calendar entry specified by _selectedCalendarEntry
-            //          here.
+            EditEntry(_selectedCalendarEntry);
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // TODO     Delete current calendar entry
-            //          Raised by selecting Delete on the content menu
-            //          The selected entry will be in _selectedCalendarEntry
+            _calendarEntries.Remove(_selectedCalendarEntry);
+            GetEntriesOnSelectedDate(monthCalendar.SelectionRange.Start);
+            SaveCalendarEntries();
+            panelDailyView.Invalidate();
         }
 
         private void tableLayoutPanelRight_Paint(object sender, PaintEventArgs e)
@@ -334,6 +345,42 @@ namespace Calendar
         private void tableLayoutPanelLeft_Paint(object sender, PaintEventArgs e)
         {
 
+        }
+
+        private void EditEntry(ICalendarEntry editEntry)
+        {
+            string[] split = editEntry.DisplayText.Split('\t');
+
+            if (split.Length == 2)
+            {
+                SingleAppointmentForm singleEntry = new SingleAppointmentForm();
+
+                singleEntry.NA = (SingleAppointmentEntry)editEntry;
+                singleEntry.EditEntry(editEntry);
+
+                if (singleEntry.ShowDialog() == DialogResult.OK)
+                {
+                    GetEntriesOnSelectedDate(monthCalendar.SelectionRange.Start);
+                    SaveCalendarEntries();
+                    panelDailyView.Invalidate();
+                }
+                singleEntry.Dispose();
+            }
+            else if (split.Length == 4)
+            {
+                RecurringAppointmentForm recurringEntry = new RecurringAppointmentForm();
+
+                recurringEntry.NRA = (RecurringAppointmentEntry)editEntry;
+                recurringEntry.EditEntry(editEntry);
+
+                if (recurringEntry.ShowDialog() == DialogResult.OK)
+                {
+                    GetEntriesOnSelectedDate(monthCalendar.SelectionRange.Start);
+                    SaveCalendarEntries();
+                    panelDailyView.Invalidate();
+                }
+                recurringEntry.Dispose();
+            }
         }
     }
 }

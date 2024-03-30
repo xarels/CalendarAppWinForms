@@ -70,30 +70,30 @@
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="CalendarApplication.cs" />
-    <Compile Include="NewAppointment.cs" />
-    <Compile Include="NewAppointmentForm.cs">
+    <Compile Include="SingleAppointmentEntry.cs" />
+    <Compile Include="SingleAppointmentForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NewAppointmentForm.Designer.cs">
-      <DependentUpon>NewAppointmentForm.cs</DependentUpon>
+    <Compile Include="SingleAppointmentForm.Designer.cs">
+      <DependentUpon>SingleAppointmentForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="NewRecurringAppointment.cs" />
-    <Compile Include="NewRecurringAppointmentForm.cs">
+    <Compile Include="RecurringAppointmentEntry.cs" />
+    <Compile Include="RecurringAppointmentForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="NewRecurringAppointmentForm.Designer.cs">
-      <DependentUpon>NewRecurringAppointmentForm.cs</DependentUpon>
+    <Compile Include="RecurringAppointmentForm.Designer.cs">
+      <DependentUpon>RecurringAppointmentForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="MainForm.resx">
       <SubType>Designer</SubType>
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NewAppointmentForm.resx">
-      <DependentUpon>NewAppointmentForm.cs</DependentUpon>
+    <EmbeddedResource Include="SingleAppointmentForm.resx">
+      <DependentUpon>SingleAppointmentForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NewRecurringAppointmentForm.resx">
-      <DependentUpon>NewRecurringAppointmentForm.cs</DependentUpon>
+    <EmbeddedResource Include="RecurringAppointmentForm.resx">
+      <DependentUpon>RecurringAppointmentForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

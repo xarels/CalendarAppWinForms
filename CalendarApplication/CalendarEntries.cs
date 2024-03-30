@@ -1,39 +1,78 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows.Forms;
 
 namespace Calendar
 {
     public class CalendarEntries : List<ICalendarEntry>
      {
-
         public bool Load(string calendarEntriesFile)
-        {
-            // TODO.  Add your code to load the data from the file specified in
-            //        calendarEntriesFile here.  You can edit the following two 
-            //        lines if you wish.
-
+        {            
+            StreamReader loadText = null;
+            string readLine;
+            string[] splitLine;
 
             bool status = true;
+
+            try
+            {
+                loadText = new StreamReader(calendarEntriesFile);
+
+                while (!loadText.EndOfStream)
+                {
+                    readLine = loadText.ReadLine();
+                    splitLine = readLine.Split('\t');
+
+                    if (splitLine.Length == 4)
+                    {
+                        this.Add(new SingleAppointmentEntry(readLine));
+                    }
+                    else
+                    {
+                        this.Add(new RecurringAppointmentEntry(readLine));
+                    }
+                }
+            }
+            catch
+            {
+                return false;
+            }
+
+            finally
+            {
+                if (loadText != null)
+                {
+                    loadText.Close();
+                }
+            }
             return status;
         }
 
         public bool Save(string calendarEntriesFile)
         {
-            // TODO.  Add your code to save the collection to the file specified in
-            //        calendarEntriesFile here.  You can edit the following two 
-            //        lines if you wish.
-
-            /*string _calendarEntriesFile = Application.UserAppDataPath + "\\appointments.txt";
-            StreamWriter saveText = new StreamWriter(_calendarEntriesFile, true);
-            saveText.WriteLine(subjectInput.Text);
-            saveText.WriteLine(locationInput.Text);
-
-            saveText.Close();
-
-            //DOkoncz !!*/
+            StreamWriter saveText = null;
             bool status = true;
+
+            try
+            {
+                saveText = new StreamWriter(calendarEntriesFile, false);  
+                                             
+                foreach (ICalendarEntry entry in this)
+                 {
+                     saveText.WriteLine(entry.SavedData);
+                 }
+            }
+            catch
+            {
+                return false;
+            }   
+            finally
+            {
+                if (saveText != null)
+                {
+                    saveText.Close();
+                }
+            }                   
             return status;
         }
 
